@@ -1,2 +1,2 @@
 # cs498
-Applied Machine Learning UIUC SP 2017
+UIUC - Applied Machine Learning - Spring 2017
