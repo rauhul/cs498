@@ -62,7 +62,7 @@ void NaiveBayes::calculateMeans(const vector<vector<long double>>& features,
     // sum each dimension per label
     for (size_t idx: idxs) {
         for (size_t dim = 0; dim < num_dimensions; dim++) {
-            if (labels[idx] == 0) {
+            if (labels[idx] == -1) {
                 label_0_means[dim] += features[idx][dim];
             } else if (labels[idx] == 1) {
                 label_1_means[dim] += features[idx][dim];
@@ -70,7 +70,7 @@ void NaiveBayes::calculateMeans(const vector<vector<long double>>& features,
                 assert(false);
             }
         }
-        if (labels[idx] == 0) {
+        if (labels[idx] == -1) {
             num_0_examples++;
         } else if (labels[idx] == 1) {
             num_1_examples++;
@@ -107,7 +107,7 @@ void NaiveBayes::calculateSDs(const vector<vector<long double>>& features,
     // sum square deviation from the mean of each dimension per label
     for (size_t idx: idxs) {
         for (size_t dim = 0; dim < num_dimensions; dim++) {
-            if (labels[idx] == 0) {
+            if (labels[idx] == -1) {
                 long double deviation = features[idx][dim] - label_0_means[dim];
                 long double deviation_2 = deviation*deviation;
                 label_0_sds[dim] += deviation_2;
@@ -119,7 +119,7 @@ void NaiveBayes::calculateSDs(const vector<vector<long double>>& features,
                 assert(false);
             }
         }
-        if (labels[idx] == 0) {
+        if (labels[idx] == -1) {
             num_0_examples++;
         } else if (labels[idx] == 1) {
             num_1_examples++;
@@ -141,11 +141,9 @@ void NaiveBayes::calculateSDs(const vector<vector<long double>>& features,
 }
 
 // Testing
-
-void NaiveBayes::testModel(const vector<vector<long double>>& features,
-                           const vector<int>& labels,
-                           const vector<size_t>& idxs,
-                           long double& accuracy) const {
+long double NaiveBayes::testModel(const vector<vector<long double>>& features,
+                                  const vector<int>& labels,
+                                  const vector<size_t>& idxs) const {
 
     assert(features.size() == labels.size());
     assert(features.size() > 0 && idxs.size() > 0);
@@ -153,8 +151,7 @@ void NaiveBayes::testModel(const vector<vector<long double>>& features,
     size_t num_dimensions = features[0].size();
     assert(num_dimensions == label_0_means.size());
 
-    long double num_correct = 0;
-    long double num_incorrect = 0;
+    long double accuracy = 0;
 
     for (size_t idx: idxs) {
         long double log_prob_0 = training_log_prob_0;
@@ -182,16 +179,12 @@ void NaiveBayes::testModel(const vector<vector<long double>>& features,
             log_prob_1 -= logbl(sd_1);
         }
         
-        int guess = log_prob_1 > log_prob_0 ? 1 : 0;
+        int guess = log_prob_1 > log_prob_0 ? 1 : -1;
 
         if (labels[idx] == guess) {
-            num_correct++;
-        } else {
-            num_incorrect++;
+            accuracy++;
         }
-
     }
 
-    assert(num_correct + num_incorrect == idxs.size());
-    accuracy = num_correct * 100 / (num_correct + num_incorrect);
+    return accuracy * 100 / idxs.size();
 }

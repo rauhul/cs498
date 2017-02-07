@@ -24,40 +24,20 @@ void DataHelper::randSegmentIndices(vector<size_t> idxs, vector<size_t> &a_idxs,
     size_t spilt_size = idxs.size() * partition;
 
     size_t indices_remaining;
-    while ((indices_remaining = idxs.size())) {
+    while ((indices_remaining = idxs.size()) && indices_remaining > spilt_size) {
         size_t idx = rand() % indices_remaining;
         size_t value = idxs[idx];
 
         idxs[idx] = idxs.back();
         idxs.pop_back();
 
-        if (indices_remaining < spilt_size) {
-            b_idxs.push_back(value);
-        } else {
-            a_idxs.push_back(value);
-        }
+        a_idxs.push_back(value);
     }
+    
+    b_idxs = idxs;
 }
 
-void DataHelper::randSegmentIndices(vector<size_t>& a_idxs, vector<size_t>& b_idxs, long double partition) {
-    assert(partition > 0 && partition < 1);
-    srand((uint)time(NULL));
-
-    size_t b_target_size = a_idxs.size() * partition;
-
-    while (b_idxs.size() < b_target_size) {
-        size_t idx = rand() % a_idxs.size();
-        size_t value = a_idxs[idx];
-
-        a_idxs[idx] = a_idxs.back();
-        a_idxs.pop_back();
-        b_idxs.push_back(value);
-    }
-}
-
-
-
-void DataHelper::parseCSV(ifstream &data_file, vector<int> &labels, vector<vector<long double>> &features, int rows, int traits) {
+void DataHelper::parseCSV(ifstream &data_file, vector<vector<long double>> &features, vector<int> &labels, int rows, int traits) {
     string token;
     char *token_end;
     for (int row = 0; row < rows; row++) {
@@ -76,7 +56,7 @@ void DataHelper::parseCSV(ifstream &data_file, vector<int> &labels, vector<vecto
             } else {
                 if (token == "inactive") {
                     if (include) {
-                        labels.push_back(0);
+                        labels.push_back(-1);
                     }
                 } else if (token == "active") {
                     if (include) {

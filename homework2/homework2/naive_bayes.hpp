@@ -33,9 +33,9 @@ public:
     void trainModel(const vector<vector<long double>>& features,
                     const vector<int>& labels, const vector<size_t>& idxs);
 
-    void testModel(const vector<vector<long double>>& features,
-                   const vector<int>& labels, const vector<size_t>& idxs,
-                   long double& accuracy) const;
+    long double testModel(const vector<vector<long double>>& features,
+                          const vector<int>& labels,
+                          const vector<size_t>& idxs) const;
 
 private:
     void calculateMeans(const vector<vector<long double>>& features,

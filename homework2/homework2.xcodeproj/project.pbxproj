@@ -10,6 +10,7 @@
 		95C72F221E46CFC000D04EF6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95C72F211E46CFC000D04EF6 /* main.cpp */; };
 		95C72F2C1E47AEE000D04EF6 /* naive_bayes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95C72F2A1E47AEE000D04EF6 /* naive_bayes.cpp */; };
 		95C72F2F1E47CA0200D04EF6 /* data_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95C72F2D1E47CA0200D04EF6 /* data_helper.cpp */; };
+		95CAC0B41E4959650023FF5F /* support_vector_machine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95CAC0B21E4959650023FF5F /* support_vector_machine.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,8 @@
 		95C72F2B1E47AEE000D04EF6 /* naive_bayes.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = naive_bayes.hpp; sourceTree = "<group>"; };
 		95C72F2D1E47CA0200D04EF6 /* data_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = data_helper.cpp; sourceTree = "<group>"; };
 		95C72F2E1E47CA0200D04EF6 /* data_helper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = data_helper.hpp; sourceTree = "<group>"; };
+		95CAC0B21E4959650023FF5F /* support_vector_machine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = support_vector_machine.cpp; sourceTree = "<group>"; };
+		95CAC0B31E4959650023FF5F /* support_vector_machine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = support_vector_machine.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +71,8 @@
 				95C72F2E1E47CA0200D04EF6 /* data_helper.hpp */,
 				95C72F2A1E47AEE000D04EF6 /* naive_bayes.cpp */,
 				95C72F2B1E47AEE000D04EF6 /* naive_bayes.hpp */,
+				95CAC0B21E4959650023FF5F /* support_vector_machine.cpp */,
+				95CAC0B31E4959650023FF5F /* support_vector_machine.hpp */,
 			);
 			path = homework2;
 			sourceTree = "<group>";
@@ -132,6 +137,7 @@
 				95C72F2C1E47AEE000D04EF6 /* naive_bayes.cpp in Sources */,
 				95C72F2F1E47CA0200D04EF6 /* data_helper.cpp in Sources */,
 				95C72F221E46CFC000D04EF6 /* main.cpp in Sources */,
+				95CAC0B41E4959650023FF5F /* support_vector_machine.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -258,6 +264,7 @@
 				95C72F271E46CFC000D04EF6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -22,7 +22,7 @@ public:
     static void randSegmentIndices(vector<size_t> idxs, vector<size_t> &a_idxs, vector<size_t> &b_idxs, long double partition);
     static void randSegmentIndices(vector<size_t>& a_idxs, vector<size_t>& b_idxs, long double partition);
 
-    static void parseCSV(ifstream &data_file, vector<int> &labels, vector<vector<long double>> &features, int rows, int traits);
+    static void parseCSV(ifstream &data_file, vector<vector<long double>> &features, vector<int> &labels, int rows, int traits);
 
 };
 
