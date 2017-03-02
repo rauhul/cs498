@@ -19,5 +19,6 @@ Icon
 .com.apple.timemachine.donotpresent
 
 # Files
-*.data
-*.mat
+.data
+.mat
+.m~
