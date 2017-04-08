@@ -6,6 +6,7 @@
 %   implement the multinomial mixture of topics model, lectured in class.
 %   For this problem, you should write the clustering code yourself (i.e. 
 %   not use a package for clustering).
+
 clc; clear; close all;
 data = load('docword.nips.txt');
 num_docs  = data(1,1);
@@ -18,14 +19,14 @@ for idx = 2:length(data)
 end
 sparse_docs = sparse(docs_2d);
 
-num_topics = 30;
-topics = rand(num_topics, num_words);
-magnitude = sum(topics, 2);
-for idx = 1:num_topics
-    topics(idx, :) = topics(idx, :) / magnitude(idx);
+num_segments = 30;
+segments = rand(num_segments, num_words);
+magnitude = sum(segments, 2);
+for idx = 1:num_segments
+    segments(idx, :) = segments(idx, :) / magnitude(idx);
 end
 
-pis = rand(num_topics, 1);
+pis = rand(num_segments, 1);
 magnitude = sum(pis, 1);
 pis = pis ./ magnitude;
 
@@ -36,23 +37,23 @@ clear data datum documents_2d idx magnitude;
 %   model, as lectured in class.
 
 num_steps = 50;
-w_per_doc = zeros(num_topics, num_docs);
+w_per_pix = zeros(num_segments, num_docs);
 
-w_per_doc_m_doc = zeros(num_topics, num_docs, num_words);
+w_per_pix_m_pix = zeros(num_segments, num_docs, num_words);
 
 for step = 1:num_steps
     step
     for idx = 1:num_docs
-        doc = sparse_docs(idx, :);
-        w_per_doc(:, idx) = w_from(doc, topics, pis);
-        w_per_doc_m_doc(:, idx, :) = w_per_doc(:, idx) * doc;
+        pix = sparse_docs(idx, :);
+        w_per_pix(:, idx) = w_from(pix, segments, pis);
+        w_per_pix_m_pix(:, idx, :) = w_per_pix(:, idx) * pix;
     end
     
-    pis = sum(w_per_doc, 2) / num_docs;
-    topics = squeeze(sum(w_per_doc_m_doc, 2));
-    magnitude = sum(topics, 2);
-    for idx = 1:num_topics
-        topics(idx, :) = topics(idx, :) / magnitude(idx);
+    pis = sum(w_per_pix, 2) / num_docs;
+    segments = squeeze(sum(w_per_pix_m_pix, 2));
+    magnitude = sum(segments, 2);
+    for idx = 1:num_segments
+        segments(idx, :) = segments(idx, :) / magnitude(idx);
     end
 
 end
@@ -73,21 +74,95 @@ xlabel('Topic Number');
 
 vocab = importdata('vocab.nips.txt');
 
-for idx = 1:length(topics)
-    topic = topics(idx, :);
-    
+for idx = 1:length(segments(:, 1))
+    topic = segments(idx, :);
+    idx
     [~,indices] = sort(topic,'descend');
-    
-    for n = 1:10
-        
-        
-        
-    end
+    vocab(indices(1:10))
 end
 
 
+%%
+% 2) Image segmentation using EM You can segment an image using a 
+%   clustering method - each segment is the cluster center to which a pixel
+%   belongs. In this exercise, you will represent an image pixel by its r,
+%   g, and b values (so use color images!). Use the EM algorithm applied to
+%   the mixture of normal distribution model lectured in class to cluster
+%   image pixels, then segment the image by mapping each pixel to the 
+%   cluster center with the highest value of the posterior probability for
+%   that pixel. You must implement the EM algorithm yourself (rather than
+%   using a package). We will release a set of test images shortly; till
+%   then, use any color image you care to.
+
+clc; clear; close all;
+
+num_pixels = 480*640;
+num_channels = 3;
+
+img1 = double(reshape(imread('img1.jpg'), [num_pixels num_channels]))/255;
+% img2 = reshape(imread('img2.jpg'), [num_pixels num_channels]);
+% img3 = reshape(imread('img3.jpg'), [num_pixels num_channels]);
+
+%%
+% a) Segment each of the test images to 10, 20, and 50 segments. You should
+%   display these segmented images as images, where each pixel's color is
+%   replaced with the mean color of the closest segment
+
+num_segments = 10;
+img = img1;
+
+segments = datasample(img, num_segments);
+
+pis = rand(num_segments, 1);
+magnitude = sum(pis, 1);
+pis = pis ./ magnitude;
+
+num_steps = 3;
+w_per_pix = zeros(num_segments, num_pixels);
+w_per_pix_m_pix = zeros(num_segments, num_pixels, num_channels);
+
+img_average = mean(img, 1);
+
+% for step = 1:num_steps
+%     step
+    for idx = 1:num_pixels
+        pix = img(idx, :);
+        
+        w = zeros(size(pis));
+        for i = 1:length(pis)
+            temp = 2*(pix - segments(i, :));
+            w(i) = (-0.5) * (temp * temp');
+        end
+        w = w - max(w);
+        w = exp(w);
+        w = w .* pis;
+        w = w / sum(w);
+        
+        w_per_pix(:, idx) = w;
+        w_per_pix_m_pix(:, idx, :) = w_per_pix(:, idx) * pix;
+    end
+    dist1 = segments - img_average;
+    
+    pis = sum(w_per_pix, 2) / num_pixels;
+    segments = squeeze(sum(w_per_pix_m_pix, 2));
+    magnitude = sum(w_per_pix, 2); 
+    for idx = 1:num_segments
+        segments(idx, :) = segments(idx, :) / magnitude(idx);
+    end
+    dist2 = segments - img_average;
+    larger = dist2 > dist1;
+    sum_larger = sum(larger)
+    segments
+% end
+
+'done'
 
 
+
+%%
+% b) We will identify one special test image. You should segment this to 20
+%   segments using five different start points, and display the result for
+%   each case. Is there much variation in the result?
 
 
 
