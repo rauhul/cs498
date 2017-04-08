@@ -6,7 +6,6 @@
 %   implement the multinomial mixture of topics model, lectured in class.
 %   For this problem, you should write the clustering code yourself (i.e. 
 %   not use a package for clustering).
-
 clc; clear; close all;
 data = load('docword.nips.txt');
 num_docs  = data(1,1);
@@ -74,11 +73,16 @@ xlabel('Topic Number');
 
 vocab = importdata('vocab.nips.txt');
 
-for idx = 1:length(topics(:, 1))
+for idx = 1:length(topics)
     topic = topics(idx, :);
-    idx
+    
     [~,indices] = sort(topic,'descend');
-    vocab(indices(1:10))
+    
+    for n = 1:10
+        
+        
+        
+    end
 end
 
 
