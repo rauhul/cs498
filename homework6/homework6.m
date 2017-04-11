@@ -94,64 +94,92 @@ end
 %   using a package). We will release a set of test images shortly; till
 %   then, use any color image you care to.
 
-clc; clear; close all;
-
-num_pixels = 480*640;
-num_channels = 3;
-
-img1 = double(reshape(imread('img1.jpg'), [num_pixels num_channels]));
-% img2 = reshape(imread('img2.jpg'), [num_pixels num_channels]);
-% img3 = reshape(imread('img3.jpg'), [num_pixels num_channels]);
-
 %%
 % a) Segment each of the test images to 10, 20, and 50 segments. You should
 %   display these segmented images as images, where each pixel's color is
 %   replaced with the mean color of the closest segment
+clc; clear; close all;
+img1 = imread('img1.jpg');
+img2 = imread('img2.jpg');
+img3 = imread('img3.jpg');
 
-num_segments = 10;
-img = img1;
+img_raw = img3;
 
-segments = datasample(img, num_segments);
+[height, width, num_channels] = size(img_raw);
+num_pixels = height * width;
 
-pis = rand(num_segments, 1);
-magnitude = sum(pis, 1);
-pis = pis ./ magnitude;
+img = double(reshape(img_raw, [num_pixels num_channels]));
 
-num_steps = 50;
-w_per_pix = zeros(num_segments, num_pixels);
-w_per_pix_m_pix = zeros(num_ssegegments, num_pixels, num_channels);
+for num_segments = [10 20 20 20 20 20 50] 
 
-img_average = mean(img, 1);
+    segments = datasample(img, num_segments);
 
-for step = 1:num_steps
-    step
-    for idx = 1:num_pixels
-        pix = img(idx, :);
-        
-        w = zeros(size(pis));
-        for i = 1:length(pis)
-            temp = pix - segments(i, :);
-            w(i) = (-0.5) * (temp * temp');
+    pis = rand(num_segments, 1);
+    magnitude = sum(pis, 1);
+    pis = pis ./ magnitude;
+
+    num_steps = 25;
+    w_per_pix = zeros(num_segments, num_pixels);
+    w_per_pix_m_pix = zeros(num_segments, num_pixels, num_channels);
+
+    for step = 1:num_steps
+        step
+        for idx = 1:num_pixels
+            pix = img(idx, :);
+
+            w = zeros(size(pis));
+            for i = 1:length(pis)
+                temp = pix - segments(i, :);
+                w(i) = (-0.5) * (temp * temp');
+            end
+            w = w - max(w);
+            w = exp(w);
+            w = w .* pis;
+            w = w / sum(w);
+
+            w_per_pix(:, idx) = w;
+            w_per_pix_m_pix(:, idx, :) = w_per_pix(:, idx) * pix;
+        end    
+        pis = sum(w_per_pix, 2) / num_pixels;
+        segments = squeeze(sum(w_per_pix_m_pix, 2));
+        magnitude = sum(w_per_pix, 2); 
+        for idx = 1:num_segments
+            segments(idx, :) = segments(idx, :) / magnitude(idx);
         end
-        w = w - max(w);
-        w = exp(w);
-        w = w .* pis;
-        w = w / sum(w);
-        
-        w_per_pix(:, idx) = w;
-        w_per_pix_m_pix(:, idx, :) = w_per_pix(:, idx) * pix;
-    end    
-    pis = sum(w_per_pix, 2) / num_pixels;
-    segments = squeeze(sum(w_per_pix_m_pix, 2));
-    magnitude = sum(w_per_pix, 2); 
-    for idx = 1:num_segments
-        segments(idx, :) = segments(idx, :) / magnitude(idx);
     end
+
+    'done'
+
+    means = zeros(num_segments, 3);
+    indices = zeros(num_pixels, 1);
+    counts = zeros(num_segments, 1);
+    distances = zeros(num_segments, 1);
+
+    for idx = 1:num_pixels
+        pixel = img(idx, :);
+        for s = 1:num_segments
+            distances(s) = dist(pixel, segments(s,:)'); 
+        end
+        [~, segment] = min(distances);
+        counts(segment) = counts(segment) + 1;
+        indices(idx) = segment;
+        means(segment, :) = means(segment, :) + pixel;   
+    end
+
+    for idx = 1:3
+       means(:, idx) = means(:, idx) ./ counts(:); 
+    end
+
+    img_out = zeros(num_pixels, 3);
+
+    for idx = 1:num_pixels
+        img_out(idx, :) = means(indices(idx), :); 
+    end
+    image_shaped = uint8(reshape(img_out, [height width num_channels]));
+    figure;
+    imshow(image_shaped);
+
 end
-
-'done'
-
-
 
 %%
 % b) We will identify one special test image. You should segment this to 20
