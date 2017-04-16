@@ -105,17 +105,12 @@ for i = 1:5
         original = reshape(images_original(idx, :), [28 28]);
         true_positive(i) = true_positive(i) + sum(sum(original == guess & guess == one_array));
         false_positive(i) = false_positive(i) + sum(sum(original ~= guess & guess == one_array));
-        real_positive(i) = real_positive(i) + sum(sum(original == one_array));
+        tr
     end
 end
 %Using true positives as one axis, and false positives as the next, plot a
 %point with the respective thetas
 
-true_positive = true_positive ./ real_positive;
-false_positive = false_positive ./ real_positive;
-figure;
-hold;
-scatter(false_positive, true_positive, [], [1 2 3 4 5])
-hold;
-xlim([0 1]);
-ylim([0 1]);
+sum = true_positive + false_positive;
+
+scatter(true_positive/, false_positive)
