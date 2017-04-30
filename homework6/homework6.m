@@ -42,7 +42,6 @@ w_per_pix = zeros(num_segments, num_docs);
 w_per_pix_m_pix = zeros(num_segments, num_docs, num_words);
 
 for step = 1:num_steps
-    step
     for idx = 1:num_docs
         pix = sparse_docs(idx, :);
         w_per_pix(:, idx) = w_from(pix, segments, pis);
