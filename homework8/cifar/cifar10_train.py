@@ -56,6 +56,20 @@ tf.app.flags.DEFINE_integer('log_frequency', 10,
                             """How often to log results to the console.""")
 
 
+def acc(logits, labels):
+  # Calculate the average cross entropy loss across the batch.
+  labels = tf.cast(labels, tf.int64)
+
+  # find which images the model correctly predicted 
+  correct_prediction = tf.equal(tf.argmax(logits,1), tf.argmax(labels,1))
+
+  accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name='accuracy')
+
+  tf.add_to_collection('losses', accuracy)
+
+  return tf.add_n(tf.get_collection('losses'), name='accuracy')
+
+
 def train():
   """Train CIFAR-10 for a number of steps."""
   with tf.Graph().as_default():
@@ -70,14 +84,7 @@ def train():
 
     # Calculate loss.
     loss = cifar10.loss(logits, labels)
-
-    # find which images the model correctly predicted 
-    correct_prediction = tf.equal(tf.argmax(logits,1), tf.argmax(labels,1))
-
-    with tf.name_scope('accuracy'):
-        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
-    tf.summary.scalar('accuracy', accuracy)
+    accuracy = acc(logits, labels)
 
     # Build a Graph that trains the model with one batch of examples and
     # updates the model parameters.
