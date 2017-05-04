@@ -250,7 +250,7 @@ def inference(images):
 
   # local4
   with tf.variable_scope('local4') as scope:
-    weights = _variable_with_weight_decay('weights', shape=[512, 192],
+    weights = _variable_with_weight_decay('weights', shape=[512, 256],
                                           stddev=0.04, wd=0.004)
     biases = _variable_on_cpu('biases', [256], tf.constant_initializer(0.1))
     local4 = tf.nn.relu(tf.matmul(local3, weights) + biases, name=scope.name)
