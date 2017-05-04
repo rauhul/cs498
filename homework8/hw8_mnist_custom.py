@@ -28,6 +28,7 @@ def max_pool_2x2(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
                            strides=[1, 2, 2, 1], padding='SAME')
 
+
 ## C-style main function
 def main():
 
@@ -44,33 +45,45 @@ def main():
 
 
 
-    ## convolutional layer 1, [n 28 28 1] -> [n 14 14 32]
-    # create weights for the first convolution (5x5 patch with 1 input and 32 outputs)
-    W_conv1 = weight_variable([5, 5, 1, 32])
+    ## convolutional layer 1, [n 28 28 1] -> [n 28 28 8]
+    # create weights for the first convolution (4x4 patch with 1 input and 8 outputs)
+    W_conv1 = weight_variable([4, 4, 1, 8])
 
-    # create biases associated with each of the 32 outputs of the convolution
-    b_conv1 = bias_variable([32])
+    # create biases associated with each of the 8 outputs of the convolution
+    b_conv1 = bias_variable([8])
 
-    # convolve input images with weights and add bias, x_image [n 28 28 1] -> h_conv1 [n 28 28 32]
+    # convolve input images with weights and add bias, x_image [n 28 28 1] -> h_conv1 [n 28 28 8]
     h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 
-    # max pool the output convolutions, h_conv1 [n 28 28 32] -> h_pool1 [n 14 14 32]
-    h_pool1 = max_pool_2x2(h_conv1)
 
 
-
-    ## convolutional layer 2, [n 14 14 32] -> [n 7 7 64]
-    # create weights for the second convolution (5x5 patch with 32 inputs and 64 outputs)
-    W_conv2 = weight_variable([5, 5, 32, 64])
+    ## convolutional layer 2, [n 28 28 8] -> [n 14 14 16]
+    # create weights for the second convolution (4x4 patch with 8 inputs and 16 outputs)
+    W_conv2 = weight_variable([4, 4, 8, 16])
 
     # create biases associated with each of the 64 outputs of the convolution
-    b_conv2 = bias_variable([64])
+    b_conv2 = bias_variable([16])
 
-    # convolve input with weights and add bias, h_pool1 [n 14 14 32] -> h_conv2 [n 14 14 64]
-    h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
+    # convolve input with weights and add bias, h_pool1 [n 28 28 8] -> h_conv2 [n 28 28 16]
+    h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2) + b_conv2)
 
-    # max pool the output convolutions, h_conv2 [n 14 14 64] -> h_pool2 [n 7 7 64]
+    # max pool the output convolutions, h_conv2 [n 28 28 16] -> h_pool2 [n 14 14 16]
     h_pool2 = max_pool_2x2(h_conv2)
+
+
+
+    ## convolutional layer 3, [n 14 14 16] -> [n 7 7 64]
+    # create weights for the second convolution (4x4 patch with 16 inputs and 64 outputs)
+    W_conv3 = weight_variable([4, 4, 16, 64])
+
+    # create biases associated with each of the 64 outputs of the convolution
+    b_conv3 = bias_variable([64])
+
+    # convolve input with weights and add bias, h_pool2 [n 14 14 16] -> h_conv3 [n 14 14 64]
+    h_conv3 = tf.nn.relu(conv2d(h_pool2, W_conv3) + b_conv3)
+
+    # max pool the output convolutions, h_conv3 [n 14 14 64] -> h_pool3 [n 7 7 64]
+    h_pool3 = max_pool_2x2(h_conv3)
 
 
 
