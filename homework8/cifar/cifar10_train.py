@@ -61,7 +61,7 @@ def acc(logits, labels):
   labels = tf.cast(labels, tf.int64)
 
   # find which images the model correctly predicted 
-  correct_prediction = tf.equal(tf.argmax(logits,1), tf.argmax(labels,1))
+  correct_prediction = tf.equal(tf.argmax(logits,1), labels)
 
   accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name='accuracy')
 
@@ -84,7 +84,7 @@ def train():
 
     # Calculate loss.
     loss = cifar10.loss(logits, labels)
-    # accuracy = acc(logits, labels)
+    accuracy = acc(logits, labels)
 
     # Build a Graph that trains the model with one batch of examples and
     # updates the model parameters.
@@ -108,8 +108,8 @@ def train():
           duration = current_time - self._start_time
           self._start_time = current_time
 
-          print(logits.get_shape().as_list())
-          print(labels.get_shape().as_list())
+          # print(logits)
+          # print(labels)
 
           loss_value = run_values.results
           examples_per_sec = FLAGS.log_frequency * FLAGS.batch_size / duration
