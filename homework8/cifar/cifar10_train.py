@@ -86,8 +86,6 @@ def train():
     loss = cifar10.loss(logits, labels)
     # accuracy = acc(logits, labels)
 
-    print(logits.get_shape().as_list())
-    print(labels.get_shape().as_list())
     # Build a Graph that trains the model with one batch of examples and
     # updates the model parameters.
     train_op = cifar10.train(loss, global_step)
@@ -109,6 +107,9 @@ def train():
           current_time = time.time()
           duration = current_time - self._start_time
           self._start_time = current_time
+
+          print(logits.get_shape().as_list())
+          print(labels.get_shape().as_list())
 
           loss_value = run_values.results
           examples_per_sec = FLAGS.log_frequency * FLAGS.batch_size / duration
