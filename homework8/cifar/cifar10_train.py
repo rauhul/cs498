@@ -71,6 +71,14 @@ def train():
     # Calculate loss.
     loss = cifar10.loss(logits, labels)
 
+    # find which images the model correctly predicted 
+    correct_prediction = tf.equal(tf.argmax(logits,1), tf.argmax(labels,1))
+
+    with tf.name_scope('accuracy'):
+        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
+    tf.summary.scalar('accuracy', accuracy)
+
     # Build a Graph that trains the model with one batch of examples and
     # updates the model parameters.
     train_op = cifar10.train(loss, global_step)
@@ -84,7 +92,7 @@ def train():
 
       def before_run(self, run_context):
         self._step += 1
-        return tf.train.SessionRunArgs(loss)  # Asks for loss value.
+        return tf.train.SessionRunArgs(loss, accuracy)  # Asks for loss value.
 
       def after_run(self, run_context, run_values):
         if self._step % FLAGS.log_frequency == 0:
