@@ -28,6 +28,29 @@ def max_pool_2x2(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
                            strides=[1, 2, 2, 1], padding='SAME')
 
+## convolutional layer 1, [n h w inputs] -> [n h w outputs]
+def conv_layer(x, kernal_size, inputs, outputs):
+    # create kernal for the first convolution 
+    W = weight_variable([kernal_size, kernal_size, inputs, outputs])
+
+    # create biases associated with each of the outputs of the convolution
+    b = bias_variable([outputs])
+
+    # convolve input images with weights and add bias
+    return tf.nn.relu(conv2d(x, W) + b)
+
+def fc_layer(x, height, width, inputs, outputs):
+    W = weight_variable([height * width * inputs, outputs])
+
+    # create biases associated with each of the outputs of the fully connected layer
+    b = bias_variable([outputs])
+
+    # reshape the result to be used in the fully connected layer
+    x_flat = tf.reshape(x, [-1, height * width * inputs])
+
+    # multiply reshaped result of the last layer by the weight matrix, add a bias, and apply a ReLU
+    return tf.nn.relu(tf.matmul(x_flat, W) + b)
+
 
 ## C-style main function
 def main():
@@ -40,101 +63,50 @@ def main():
     # placehodler for the correct classes
     y_ = tf.placeholder(tf.float32, [None, 10])
 
+    # placeholder probability to keep a node in the network, this so we can use dropout on during training, and turn it off during testing.
+    keep_prob = tf.placeholder(tf.float32)
+
     # reshape the input into images, in form [n h w c]
     x_image = tf.reshape(x, [-1, 28, 28, 1])
 
 
 
-    ## convolutional layer 1, [n 28 28 1] -> [n 28 28 8]
-    # create weights for the first convolution (4x4 patch with 1 input and 8 outputs)
-    W_conv1 = weight_variable([4, 4, 1, 8])
+    x_conv1 = conv_layer(x_image, 4,  1,  8)
 
-    # create biases associated with each of the 8 outputs of the convolution
-    b_conv1 = bias_variable([8])
+    x_conv2 = conv_layer(x_conv1, 10, 8,  32)
 
-    # convolve input images with weights and add bias, x_image [n 28 28 1] -> h_conv1 [n 28 28 8]
-    h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
+    x_conv3 = conv_layer(x_conv2, 6,  32, 64)
 
-
-
-    ## convolutional layer 2, [n 28 28 8] -> [n 14 14 16]
-    # create weights for the second convolution (4x4 patch with 8 inputs and 16 outputs)
-    W_conv2 = weight_variable([4, 4, 8, 16])
-
-    # create biases associated with each of the 64 outputs of the convolution
-    b_conv2 = bias_variable([16])
-
-    # convolve input with weights and add bias, h_pool1 [n 28 28 8] -> h_conv2 [n 28 28 16]
-    h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2) + b_conv2)
-
-    # max pool the output convolutions, h_conv2 [n 28 28 16] -> h_pool2 [n 14 14 16]
-    h_pool2 = max_pool_2x2(h_conv2)
-
-
-
-    ## convolutional layer 3, [n 14 14 16] -> [n 7 7 64]
-    # create weights for the second convolution (4x4 patch with 16 inputs and 64 outputs)
-    W_conv3 = weight_variable([4, 4, 16, 64])
-
-    # create biases associated with each of the 64 outputs of the convolution
-    b_conv3 = bias_variable([64])
-
-    # convolve input with weights and add bias, h_pool2 [n 14 14 16] -> h_conv3 [n 14 14 64]
-    h_conv3 = tf.nn.relu(conv2d(h_pool2, W_conv3) + b_conv3)
-
-    # max pool the output convolutions, h_conv3 [n 14 14 64] -> h_pool3 [n 7 7 64]
-    h_pool3 = max_pool_2x2(h_conv3)
-
-
-
-    ## densely connected layer, [n 7 7 64] ->
-    # create weights for the fully connected layer (7 * 7 * 64 inputs and 1024 outputs)
-    W_fc1 = weight_variable([7 * 7 * 64, 1024])
-
-    # create biases associated with each of the 1024 outputs of the fully connected layer
-    b_fc1 = bias_variable([1024])
-
-    # reshape the result of h_pool2 to be used in the fully connected layer [n 7 7 64] -> [n 7*7*64]
-    h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*64])
-
-    # multiply reshaped result of the last layer by the weight matrix, add a bias, and apply a ReLU
-    h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
-
-
-
-    ## dropout
-    # placeholder probability to keep a node in the network, this so we can use dropout on during training, and turn it off during testing.
-    keep_prob = tf.placeholder(tf.float32)
-
-    # dropout the nodes related to the output of the densely connected layer with the probability: `keep_prob`
-    h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+    x_fc1 = fc_layer(x_conv3, 28, 28, 64, 1024)
+    
+    x_fc1_drop = tf.nn.dropout(x_fc1, keep_prob)
 
 
 
     ## readout layer (densely connected layer 2)
     ## this layer brings the 1024 features of fc1 down to 10
     # create weights for the fully connected layer (1024 inputs and 10 outputs)
-    W_fc2 = weight_variable([1024, 10])
+    W = weight_variable([1024, 10])
     
     # create biases associated with each of the 10 outputs of the fully connected layer
-    b_fc2 = bias_variable([10])
+    b = bias_variable([10])
 
     # unnormalized predicted probabilities for each class from the convolutional nueral net
-    y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+    y = tf.matmul(x_fc1_drop, W) + b
 
 
 
     ### training/testing
     with tf.Session() as sess:
         ## creating the training/testing objects
-        # calculate the average cross_entropy between our predictions (y_conv) and the correct classes (y_)
-        cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv))
+        # calculate the average cross_entropy between our predictions (y) and the correct classes (y_)
+        cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
 
         # define the training step, which uses an ADAM optimizer to minimize the cross_entropy
         train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 
         # find which images the model correctly predicted 
-        correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
+        correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
 
         # reduce the vector of booleans to a percentage correct
         with tf.name_scope('accuracy'):
