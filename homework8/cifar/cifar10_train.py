@@ -84,8 +84,10 @@ def train():
 
     # Calculate loss.
     loss = cifar10.loss(logits, labels)
-    accuracy = acc(logits, labels)
+    # accuracy = acc(logits, labels)
 
+    print(logits.get_shape().as_list())
+    print(labels.get_shape().as_list())
     # Build a Graph that trains the model with one batch of examples and
     # updates the model parameters.
     train_op = cifar10.train(loss, global_step)
@@ -99,7 +101,8 @@ def train():
 
       def before_run(self, run_context):
         self._step += 1
-        return tf.train.SessionRunArgs(loss, accuracy)  # Asks for loss value.
+
+        return tf.train.SessionRunArgs(loss)  # Asks for loss value.
 
       def after_run(self, run_context, run_values):
         if self._step % FLAGS.log_frequency == 0:
